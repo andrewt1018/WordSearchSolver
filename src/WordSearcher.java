@@ -27,7 +27,7 @@ public class WordSearcher {
                     if (grid[i][j] == word.charAt(0)) {
                         boolean found = searchSurrounding(i, j, word);
                         if (found) {
-                            ret = ret + String.format("%s can be found at row %d and column %d\n", word, i + 1, j + 1);
+                            ret += String.format("%s can be found at row %d and column %d\n", word, i + 1, j + 1);
                         }
                     }
                 }

@@ -127,8 +127,10 @@ public class Gridmaker {
                     result[beginRow + i][beginCol + j] = word.getLetterAt(i, j);
                 } else {
                     validPlace = false;
+                    break;
                 }
             }
+            if (!validPlace) break;
         }
 
         if (!validPlace) {
