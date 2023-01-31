@@ -467,12 +467,27 @@ public class Gridmaker {
          *
          * Appends the words needed to be found at the end
          */
-        String ret = "";
+        String ret = "   ";
+        for (int col_counter = 1; col_counter <= grid[0].length; col_counter++) {
+            if (col_counter / 10 > 0) {
+                ret += col_counter + " ";
+            } else {
+                ret += col_counter + "  ";
+            }
+        }
+        ret += "\n";
+        int row_counter = 1;
         for (int i = 0; i < grid[0].length; i++) {
+            if (row_counter / 10 > 0) {
+                ret += row_counter + " ";
+            } else {
+                ret += row_counter + "  ";
+            }
             for (int j = 0; j < grid.length; j++) {
                 ret += grid[i][j] + "  ";
             }
             ret += "\n";
+            row_counter++;
         }
         for (String word : inputs) {
             if (!unplacedWords.contains(word)) {
