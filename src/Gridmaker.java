@@ -15,8 +15,10 @@ import java.util.*;
  *
  */
 public class Gridmaker {
+    private static int placeWordCounter = 0;
     private ArrayList<Word> words; // String of words used in the game
     private ArrayList<String> inputs;
+    private ArrayList<String> unplacedWords;
     private char[][] grid;
     private int size; // Size of the square (size x size)
 
@@ -41,6 +43,7 @@ public class Gridmaker {
             inputs.remove(word);
         }
         this.inputs = inputs;
+        this.unplacedWords = new ArrayList<>();
 
         size = (words.size() / 3) * 2; // 27 words --> square with length of 18
 
@@ -75,6 +78,7 @@ public class Gridmaker {
          */
         // Placing each word into the grid
         for (Word word : words) {
+            placeWordCounter = 0;
             grid = placeWord(word);
         }
         for (int r = 0; r < grid.length; r++) {
@@ -97,11 +101,16 @@ public class Gridmaker {
          */
         // Create a new char[][] grid in case word cannot be placed, then return this char[][] grid
         // Copies each value of grid to result because original values might change
+        placeWordCounter++;
         char[][] result = new char[grid.length][grid[0].length];
         for (int row = 0; row < grid.length; row++) {
             for (int col = 0; col < grid[0].length; col++) {
                 result[row][col] = grid[row][col];
             }
+        }
+        if (placeWordCounter == 500) {
+            unplacedWords.add(word.getWord());
+            return result;
         }
 
         // Prepare the word for placement
@@ -163,126 +172,113 @@ public class Gridmaker {
         char fill = (char) (rand.nextInt(26) + 97);
         result[row][col] = fill;
 
-        ArrayList<String> testStrings = new ArrayList<>();
-        String leftRight;
-        String rightLeft;
-        String downUp;
-        String upDown;
-        String toUpRight;
-        String toUpLeft;
-        String toBottomLeft;
-        String toBottomRight;
-        if (row == 0 && col == 0) { // If character is top left corner
-            leftRight = Character.toString(result[row][col]) + result[row][col + 1];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row + 1][col]) + result[row][col];
-            upDown = reverseString(downUp);
-            toUpRight = "";
-            toUpLeft = Character.toString(result[row + 1][col + 1]) + result[row][col];
-            toBottomLeft = "";
-            toBottomRight = reverseString(toUpLeft);
-        } else if (row == 0 && col == grid[0].length - 1) { // If character is top right corner
-            leftRight = Character.toString(result[row][col - 1]) + result[row][col];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row + 1][col]) + result[row][col];
-            upDown = reverseString(downUp);
-            toUpRight = Character.toString(result[row + 1][col - 1]) + result[row][col];
-            toUpLeft = "";
-            toBottomLeft = reverseString(toUpRight);
-            toBottomRight = "";
-        } else if (row == grid.length - 1 && col == 0) { // If character is bottom left corner
-            leftRight = Character.toString(result[row][col + 1]) + result[row][col];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row][col]) + result[row - 1][col];
-            upDown = reverseString(downUp);
-            toUpRight = Character.toString(result[row][col]) + result[row - 1][col + 1];
-            toUpLeft = "";
-            toBottomLeft = reverseString(toUpRight);
-            toBottomRight = "";
-        } else if (row == grid.length - 1 && col == grid[0].length - 1) { // If character is bottom right corner
-            leftRight = Character.toString(result[row][col - 1]) + result[row][col];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row][col]) + result[row - 1][col];
-            upDown = reverseString(downUp);
-            toUpRight = "";
-            toUpLeft = Character.toString(result[row][col]) + result[row - 1][col - 1];
-            toBottomLeft = "";
-            toBottomRight = reverseString(toUpLeft);
-        } else if (row == 0) { // If the character is not in a corner but on the top edge
-            leftRight = Character.toString(result[row][col - 1]) + result[row][col] + result[row][col + 1];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row + 1][col]) + result[row][col];
-            upDown = reverseString(downUp);
-            toUpRight = Character.toString(result[row + 1][col - 1]) + result[row][col];
-            toUpLeft = Character.toString(result[row + 1][col + 1]) + result[row][col];
-            toBottomLeft = reverseString(toUpRight);
-            toBottomRight = reverseString(toUpLeft);
-        } else if (col == 0) { // If the character is not in a corner but on the left edge
-            leftRight = Character.toString(result[row][col + 1]) + result[row][col];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row + 1][col]) + result[row][col] + result[row - 1][col];
-            upDown = reverseString(downUp);
-            toUpRight = Character.toString(result[row][col]) + result[row - 1][col + 1];
-            toUpLeft = Character.toString(result[row + 1][col + 1]) + result[row][col];
-            toBottomLeft = reverseString(toUpRight);
-            toBottomRight = reverseString(toUpLeft);
-        } else if (row == grid.length - 1) { // If the character is not in a corner but on the bottom edge
-            leftRight = Character.toString(result[row][col - 1]) + result[row][col] + result[row][col + 1];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row][col]) + result[row - 1][col];
-            upDown = reverseString(downUp);
-            toUpRight = Character.toString(result[row][col]) + result[row - 1][col + 1];
-            toUpLeft = Character.toString(result[row][col]) + result[row - 1][col - 1];
-            toBottomLeft = reverseString(toUpRight);
-            toBottomRight = reverseString(toUpLeft);
-        } else if (col == grid[0].length - 1) { // If the character is not in a corner but on the right edge
-            leftRight = Character.toString(result[row][col - 1]) + result[row][col];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row + 1][col]) + result[row][col] + result[row - 1][col];
-            upDown = reverseString(downUp);
-            toUpRight = Character.toString(result[row + 1][col - 1]) + result[row][col];
-            toUpLeft = Character.toString(result[row][col]) + result[row - 1][col - 1];
-            toBottomLeft = reverseString(toUpRight);
-            toBottomRight = reverseString(toUpLeft);
-        } else {
-            leftRight = Character.toString(result[row][col - 1]) + result[row][col] + result[row][col + 1];
-            rightLeft = reverseString(leftRight);
-            downUp = Character.toString(result[row + 1][col]) + result[row][col] + result[row - 1][col];
-            upDown = reverseString(downUp);
-            toUpRight = Character.toString(result[row + 1][col - 1]) + result[row][col] + result[row - 1][col + 1];
-            toUpLeft = Character.toString(result[row + 1][col + 1]) + result[row][col] + result[row - 1][col - 1];
-            toBottomLeft = reverseString(toUpRight);
-            toBottomRight = reverseString(toUpLeft);
-        }
-
-        testStrings.add(leftRight);
-        testStrings.add(rightLeft);
-        testStrings.add(downUp);
-        testStrings.add(upDown);
-        testStrings.add(toUpRight);
-        testStrings.add(toUpLeft);
-        testStrings.add(toBottomLeft);
-        testStrings.add(toBottomRight);
 
         boolean valid = true;
-        for (String word : inputs) {
-            int orientation = 1;
-            for (String test : testStrings) {
-                if (word.contains(test)) {
-                    // valid = expandedSearch(row, col, orientation, word, result);
+        for (Word word : words) {
+            String currentWord = word.getWord();
+            // Checking horizontally
+            // If this row contains word, and if original grid does not contain word, valid = false
+            if (result[row].toString().contains(currentWord)) {
+                int indexOfWord = result[row].toString().indexOf(currentWord, col - currentWord.length());
+                if (indexOfWord == col ||
+                    indexOfWord == col - currentWord.length() + 1) {
                     valid = false;
-                    if (!valid) break;
+                    break;
                 }
-                orientation += 1;
+            } else if (result[row].toString().contains(reverseString(currentWord))) {
+                int indexOfWord = result[row].toString().indexOf(reverseString(currentWord),
+                                                       col - currentWord.length());
+                if (indexOfWord == col || indexOfWord == col - currentWord.length() + 1) {
+                    valid = false;
+                    break;
+                }
             }
-            if (!valid) break;
+
+            // Check vertically
+            String verticalStr = "";
+            for (int i = 0; i < result.length; i++) verticalStr += result[i][col];
+            if (verticalStr.contains(currentWord)) {
+                int indexOfWord = verticalStr.indexOf(currentWord, row - currentWord.length());
+                if (indexOfWord == row || indexOfWord == row - currentWord.length() + 1) {
+                    valid = false;
+                    break;
+                }
+            } else if (verticalStr.contains(reverseString(currentWord))) {
+                int indexOfWord = verticalStr.indexOf(reverseString(currentWord),
+                                                           row - currentWord.length());
+                if (indexOfWord == row || indexOfWord == row - currentWord.length() + 1) {
+                    valid  = false;
+                    break;
+                }
+            }
+
+            // Check up right diagonal
+            int tempRow = row;
+            int tempCol = col;
+            int counter = 0;
+            String upRight = "";
+            while (tempRow >= 0 && tempCol < result[0].length) {
+                if (counter == currentWord.length()) break; // Only search the length of the word
+                upRight += result[tempRow][tempCol];
+                tempRow--;
+                tempCol++;
+                counter++;
+            }
+            if (upRight.contains(currentWord) || upRight.contains(reverseString(currentWord))) {
+                valid = false;
+                break;
+            }
+            tempRow = row;
+            tempCol = col;
+            counter = 0;
+            String downLeft = "";
+            while (tempRow < result.length && tempCol >=  0) {
+                if (counter == currentWord.length()) break; // Only search the length of the word
+                downLeft += result[tempRow][tempCol];
+                tempRow++;
+                tempCol--;
+                counter++;
+            }
+            if (downLeft.contains(currentWord) || downLeft.contains(reverseString(currentWord))) {
+                valid = false;
+                break;
+            }
+
+            // Check up left diagonal
+            tempRow = row;
+            tempCol = col;
+            counter = 0;
+            String upLeft = "";
+            while (tempRow >= 0 && tempCol >= 0) {
+                if (counter == currentWord.length()) break; // Only search the length of the word
+                upLeft += result[tempRow][tempCol];
+                tempRow--;
+                tempCol--;
+                counter++;
+            }
+            if (upLeft.contains(currentWord) || upLeft.contains(reverseString(currentWord))) {
+                valid = false;
+                break;
+            }
+            tempRow = row;
+            tempCol = col;
+            counter = 0;
+            String downRight = "";
+            while (tempRow < result.length && tempCol < result[0].length) {
+                if (counter == currentWord.length()) break; // Only search the length of the word
+                downRight += result[tempRow][tempCol];
+                tempRow++;
+                tempCol++;
+                counter++;
+            }
+            if (downRight.contains(currentWord) || downRight.contains(reverseString(currentWord))) {
+                valid = false;
+                break;
+            }
+
         }
-        if (!valid)
-            result = fillInLetter(row, col);
-
+        if (!valid) result = fillInLetter(row, col);
         return result;
-
-
     }
 
     private boolean expandedSearch(int row, int col, int orientation, String word, char[][] tempGrid) {
@@ -416,6 +412,26 @@ public class Gridmaker {
         return valid;
     }
 
+    public static String getRightDiagonal(char[][] charGrid, int row, int col) {
+        String ret = "";
+        int hsize = charGrid.length;
+        int vsize = charGrid[0].length;
+
+        // Move row and col variables to the bottom left
+        while (row < hsize && col >= 0) {
+            row++;
+            col--;
+        }
+
+        // Ascend up right in the grid until reaching the end
+        while (row >= 0 && col < vsize) {
+            ret += charGrid[row][col];
+            row--;
+            col++;
+        }
+        return ret;
+    }
+
     public static String reverseString(String s) {
         /**
          * Helper method for many other methods such as expandedSearch(), fillInletter() etc.
@@ -459,7 +475,14 @@ public class Gridmaker {
             ret += "\n";
         }
         for (String word : inputs) {
-            ret += word + "  ";
+            if (!unplacedWords.contains(word)) {
+                ret += word + "  ";
+            }
+        }
+        ret += "\n";
+        ret += "Unplaced words: ";
+        for (String word : unplacedWords) {
+            ret += word + " ";
         }
         return ret;
     }

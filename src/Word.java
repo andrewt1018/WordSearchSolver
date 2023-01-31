@@ -10,8 +10,8 @@ import java.util.*;
 public class Word {
     private int orientation;
     private char[][] letters;
-    private String word;
 
+    private String word;
     public Word(String word) throws InvalidWordException {
         /**
          * Constructs a Word object given a string.
@@ -190,6 +190,10 @@ public class Word {
          * Returns letter at a given index
          */
         return letters[row][col];
+    }
+
+    public String getWord() {
+        return word;
     }
 
     @Override
