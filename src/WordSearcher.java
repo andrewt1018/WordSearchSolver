@@ -7,284 +7,192 @@ import java.util.ArrayList;
  */
 public class WordSearcher {
     private char[][] grid;
-    private ArrayList<String> inputs;
+    private ArrayList<String> notFound;
+    private ArrayList<String> found;
 
     public WordSearcher(Gridmaker grid) {
         this.grid = grid.getGrid();
-        this.inputs = grid.getInputs();
+        this.notFound = grid.getInputs();
+        this.found = new ArrayList<>();
     }
 
+    /**
+     * Searches for all of the words in the given grid
+     *
+     * @Return a formatted string with all of the words and their starting index.
+     */
     public String searchWords() {
-        /**
-         * Searches for all of the words in the given grid
-         *
-         * Returns a formatted string with all of the words and their starting index.
-         */
         String ret = "";
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                for (String word : inputs) {
-                    if (grid[i][j] == word.charAt(0)) {
-                        boolean found = searchSurrounding(i, j, word);
-                        if (found) {
-                            ret += String.format("%s can be found at row %d and column %d\n", word, i + 1, j + 1);
-                        }
-                    }
+        ArrayList<String> notFoundCopy = new ArrayList<>();
+        for (String s : notFound) {
+            notFoundCopy.add(s);
+        }
+
+        // Search rows
+        int row_counter = 0;
+        for (char[] row : grid) {
+            String rowStr = String.valueOf(row);
+            for (String word : notFoundCopy) {
+                if (rowStr.contains(word)) {
+                    int indexOfWord = rowStr.indexOf(word);
+                    ret += addFoundStatement(word, row_counter, indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                } else if (rowStr.contains(Gridmaker.reverseString(word))) {
+                    int indexOfWord = rowStr.indexOf(Gridmaker.reverseString(word)) + word.length() - 1;
+                    ret += addFoundStatement(word, row_counter, indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                }
+            }
+            row_counter++;
+        }
+
+        // Search columns
+        for (int col = 0; col < grid[0].length; col++) {
+            String colStr = "";
+            for (int i = 0; i < grid.length; i++) {
+                colStr += grid[i][col];
+            }
+            for (String word : notFoundCopy) {
+                if (colStr.contains(word)) {
+                    int indexOfWord = colStr.indexOf(word);
+                    ret += addFoundStatement(word, indexOfWord, col);
+                    notFound.remove(word);
+                    found.add(word);
+                } else if (colStr.contains(Gridmaker.reverseString(word))) {
+                    int indexOfWord = colStr.indexOf(Gridmaker.reverseString(word)) + word.length();
+                    ret += addFoundStatement(word, indexOfWord, col);
+                    notFound.remove(word);
+                    found.add(word);
                 }
             }
         }
+
+        // Search up right diagonal
+        // Looping through each coordinate on the first row by varying the column
+        int c = 0;
+        while (c < grid[0].length) {
+            String rightDiag = getRightDiagonal(grid, 0, c);
+            for (String word : notFoundCopy) {
+                if (rightDiag.contains(word)) {
+                    int indexOfWord = rightDiag.indexOf(word);
+                    ret += addFoundStatement(word, c - indexOfWord, indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                } else if (rightDiag.contains(Gridmaker.reverseString(word))) {
+                    int indexOfWord = rightDiag.indexOf(Gridmaker.reverseString(word)) + word.length() - 1;
+                    ret += addFoundStatement(word, c - indexOfWord, indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                }
+            }
+            c++;
+        }
+        // Looping through each coordinate on the first column by varying the row
+        int r = 1;
+        while (r < grid.length) {
+            String rightDiag = getRightDiagonal(grid, r, grid[0].length);
+            for (String word : notFoundCopy) {
+                if (rightDiag.contains(word)) {
+                    int indexOfWord = rightDiag.indexOf(word);
+                    ret += addFoundStatement(word, grid.length - indexOfWord - 1, r + indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                } else if (rightDiag.contains(Gridmaker.reverseString(word))) {
+                    int indexOfWord = rightDiag.indexOf(Gridmaker.reverseString(word)) + word.length() - 1;
+                    ret += addFoundStatement(word, grid.length - indexOfWord - 1, r + indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                }
+            }
+            r++;
+        }
+
+        // Search up left diagonal
+        // Looping through each coordinate on the first column by varying the row
+        r = 0;
+        while (r < grid[0].length) {
+            String leftDiag = getLeftDiag(grid, r, 0);
+            for (String word : notFoundCopy) {
+                if (leftDiag.contains(word)) {
+                    int indexOfWord = leftDiag.indexOf(word);
+                    ret += addFoundStatement(word, r + indexOfWord, indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                } else if (leftDiag.contains(Gridmaker.reverseString(word))) {
+                    int indexOfWord = leftDiag.indexOf(Gridmaker.reverseString(word)) + word.length() - 1;
+                    ret += addFoundStatement(word, r + indexOfWord, indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                }
+            }
+            r++;
+        }
+        // Looping through each coordinate on the first row by varying the column
+        c = 1;
+        while (c < grid[0].length) {
+            String leftDiag = getLeftDiag(grid, 0, c);
+            for (String word : notFoundCopy) {
+                if (leftDiag.contains(word)) {
+                    int indexOfWord = leftDiag.indexOf(word);
+                    ret += addFoundStatement(word, indexOfWord, c + indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                } else if (leftDiag.contains(Gridmaker.reverseString(word))) {
+                    int indexOfWord = leftDiag.indexOf(Gridmaker.reverseString(word)) + word.length() - 1;
+                    ret += addFoundStatement(word,  indexOfWord, c + indexOfWord);
+                    notFound.remove(word);
+                    found.add(word);
+                }
+            }
+            c++;
+        }
         return ret;
     }
 
-    public boolean searchSurrounding(int row, int col, String word) {
-        /**
-         * Each orientation of the word comes in the form of an integer
-         * 1: word goes straight to the right
-         * 2: word goes straight to the left
-         * 3: word goes upwards
-         * 4: word goes downwards
-         * 5: word goes diagonally up right
-         * 6: word goes diagonally up left
-         * 7: word goes to the bottom left
-         * 8: word goes to the bottom right
-         */
-        boolean ret = false;
-        // Work on the corners first
-        if (row == 0 && col == grid[0].length - 1) { // Top right corner
-            if (!ret) ret = searchLeft(row, col, word);
-            if (!ret) ret = searchBottomLeft(row, col, word);
-            if (!ret) ret = searchDown(row, col, word);
-        } else if (row == 0 && col == 0) { // Top left corner
-            if (!ret) ret = searchRight(row, col, word);
-            if (!ret) ret = searchBottomRight(row, col, word);
-            if (!ret) ret = searchDown(row, col, word);
-        } else if (row == grid.length - 1 && col == 0) { // Bottom left corner
-            if (!ret) ret = searchUp(row, col, word);
-            if (!ret) ret = searchUpRight(row, col, word);
-            if (!ret) ret = searchRight(row, col, word);
-        } else if (row == grid.length - 1 && col == grid[0].length - 1) { // Bottom right corner
-            if (!ret) ret = searchUp(row, col, word);
-            if (!ret) ret = searchUpLeft(row, col, word);
-            if (!ret) ret = searchLeft(row, col, word);
-        } else if (row == 0 && col == grid[0].length - 1) { // Top right corner
-            if (!ret) ret = searchLeft(row, col, word);
-            if (!ret) ret = searchBottomLeft(row, col, word);
-            if (!ret) ret = searchDown(row, col, word);
-        // Work on the edges
-        } else if (row == 0) { // Top edge
-            if (!ret) ret = searchRight(row, col, word);
-            if (!ret) ret = searchLeft(row, col, word);
-            if (!ret) ret = searchBottomLeft(row, col, word);
-            if (!ret) ret = searchBottomRight(row, col, word);
-            if (!ret) ret = searchDown(row, col, word);
-        } else if (row == grid.length - 1) { // Bottom edge
-            if (!ret) ret = searchRight(row, col, word);
-            if (!ret) ret = searchLeft(row, col, word);
-            if (!ret) ret = searchUpLeft(row, col, word);
-            if (!ret) ret = searchUpRight(row, col, word);
-            if (!ret) ret = searchUp(row, col, word);
-        } else if (col == 0) { // Left edge
-            if (!ret) ret = searchRight(row, col, word);
-            if (!ret) ret = searchUp(row, col, word);
-            if (!ret) ret = searchDown(row, col, word);
-            if (!ret) ret = searchUpRight(row, col, word);
-            if (!ret) ret = searchBottomRight(row, col, word);
-        } else if (col == grid[0].length - 1) { // Right edge
-            if (!ret) ret = searchLeft(row, col, word);
-            if (!ret) ret = searchUp(row, col, word);
-            if (!ret) ret = searchDown(row, col, word);
-            if (!ret) ret = searchBottomLeft(row, col, word);
-            if (!ret) ret = searchUpLeft(row, col, word);
-        // Work on the rest of the grid
-        } else {
-            if (!ret) ret = searchLeft(row, col, word);
-            if (!ret) ret = searchRight(row, col, word);
-            if (!ret) ret = searchUp(row, col, word);
-            if (!ret) ret = searchDown(row, col, word);
-            if (!ret) ret = searchUpRight(row, col, word);
-            if (!ret) ret = searchUpLeft(row, col, word);
-            if (!ret) ret = searchBottomLeft(row, col, word);
-            if (!ret) ret = searchBottomRight(row, col, word);
+    /**
+     * Gets the diagonal of a 2D char grid spanning from the botton left
+     * to upper right.
+     * @Param a 2D char grid, a specified row and a specified column
+     * @Return a string starting from the bottom left to the upper right of the 2D array
+     */
+    public String getRightDiagonal(char[][] grid, int row, int col) {
+        String ret = "";
+        while (row < grid.length - 1 && col > 0) {
+            row++;
+            col--;
         }
-
+        while (row >= 0 && col < grid[0].length) {
+            ret += grid[row][col];
+            row--;
+            col++;
+        }
         return ret;
     }
 
-
-    public boolean continuedSearch(int row, int col, String word, int orientation) {
-        boolean isFound = true;
-        int i;
-        switch (orientation) {
-            case 1: // right
-                i = 0;
-                while (i < word.length() && col < grid[0].length && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    i++;
-                    col++;
-                    if (col == grid[0].length) {
-                        isFound = false;
-                    }
-                }
-                break;
-            case 2: // left
-                i = 0;
-                while (i < word.length() && col >= 0 && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    i++;
-                    col--;
-                    if (col == -1) {
-                        isFound = false;
-                    }
-                }
-                break;
-            case 3: // up
-                i = 0;
-                while (i < word.length() && row >= 0 && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    i++;
-                    row--;
-                    if (row == -1) {
-                        isFound = false;
-                    }
-                }
-                break;
-            case 4: // down
-                i = 0;
-                while (i < word.length() && row < grid.length && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    i++;
-                    row++;
-                    if (row == grid.length) {
-                        isFound = false;
-                    }
-                }
-                break;
-            case 5: // up right
-                i = 0;
-                while (i < word.length() && row >= 0 && col < grid[0].length && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    row--;
-                    col++;
-                    i++;
-                    if (row == -1 || col == grid[0].length) {
-                        isFound = false;
-                    }
-                }
-                break;
-            case 6: // up left
-                i = 0;
-                while (i < word.length() && row >= 0 && col >= 0 && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    row--;
-                    col--;
-                    i++;
-                    if (row == -1 || col == -1) {
-                        isFound = false;
-                    }
-                }
-                break;
-            case 7: // down left
-                i = 0;
-                while (i < word.length() && row < grid.length && col >= 0 && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    row++;
-                    col--;
-                    i++;
-                    if (row == grid.length || col == -1) {
-                        isFound = false;
-                    }
-                }
-                break;
-            case 8: // down right
-                i = 0;
-                while (i < word.length() && row < grid.length && col < grid[0].length && isFound) {
-                    if (grid[row][col] != word.charAt(i)) {
-                        isFound = false;
-                    }
-                    row++;
-                    col++;
-                    i++;
-                    if (row == grid.length || col == grid[0].length) {
-                        isFound = false;
-                    }
-                }
-                break;
+    /**
+     * Gets the diagonal of a 2D char grid spanning from the top left
+     * to bottom right.
+     * @Param a 2D char grid, a specified row and a specified column
+     * @Return a string starting from the top left to the bottom right of the 2D array
+     */
+    public String getLeftDiag(char[][] grid, int row, int col) {
+        String ret = "";
+        while (row > 0 && col > 0) {
+            row--;
+            col--;
         }
-
-        return isFound;
+        while (row < grid.length && col < grid[0].length) {
+            ret += grid[row][col];
+            row++;
+            col++;
+        }
+        return ret;
     }
 
-    public final boolean searchRight(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row][col + 1] == word.charAt(1)) { // Search right
-            found = continuedSearch(row, col, word, 1);
-        }
-        return found;
+    public String addFoundStatement(String word, int row, int col) {
+        return String.format("%s can be found at row %d and column %d\n", word, row, col);
     }
-    public final boolean searchLeft(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row][col - 1] == word.charAt(1)) { // Search left
-            found = continuedSearch(row, col, word, 2);
-        }
-        return found;
-    }
-    public final boolean searchUp(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row - 1][col] == word.charAt(1)) { // Search Up
-            found = continuedSearch(row, col, word, 3);
-        }
-        return found;
-    }
-    public final boolean searchDown(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row + 1][col] == word.charAt(1)) { // Search Down
-            found = continuedSearch(row, col, word, 4);
-        }
-        return found;
-    }
-    public final boolean searchUpRight(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row - 1][col + 1] == word.charAt(1)) { // Search Up Right
-            found = continuedSearch(row, col, word, 5);
-        }
-        return found;
-    }
-    public final boolean searchUpLeft(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row - 1][col - 1] == word.charAt(1)) { // Search Up Left
-            found = continuedSearch(row, col, word, 6);
-        }
-        return found;
-    }
-    public final boolean searchBottomLeft(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row + 1][col - 1] == word.charAt(1)) { // Search Bottom Left
-            found = continuedSearch(row, col, word, 7);
-        }
-        return found;
-    }
-    public final boolean searchBottomRight(int row, int col, String word) {
-        boolean found = false;
-        if (grid[row + 1][col + 1] == word.charAt(1)) { // Search Bottom Right
-            found = continuedSearch(row, col, word, 7);
-        }
-        return found;
-    }
-
-
 
 }

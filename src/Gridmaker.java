@@ -81,13 +81,13 @@ public class Gridmaker {
             placeWordCounter = 0;
             grid = placeWord(word);
         }
-        for (int r = 0; r < grid.length; r++) {
-            for (int c = 0; c < grid[0].length; c++) {
-                if (grid[r][c] == '.') {
-                    grid = fillInLetter(r, c);
-                }
-            }
-        }
+//        for (int r = 0; r < grid.length; r++) {
+//            for (int c = 0; c < grid[0].length; c++) {
+//                if (grid[r][c] == '.') {
+//                    grid = fillInLetter(r, c);
+//                }
+//            }
+//        }
     }
 
     private char[][] placeWord(Word word) {
@@ -178,15 +178,15 @@ public class Gridmaker {
             String currentWord = word.getWord();
             // Checking horizontally
             // If this row contains word, and if original grid does not contain word, valid = false
-            if (result[row].toString().contains(currentWord)) {
-                int indexOfWord = result[row].toString().indexOf(currentWord, col - currentWord.length());
+            if (String.valueOf(result[row]).contains(currentWord)) {
+                int indexOfWord = String.valueOf(result[row]).indexOf(currentWord, col - currentWord.length());
                 if (indexOfWord == col ||
                     indexOfWord == col - currentWord.length() + 1) {
                     valid = false;
                     break;
                 }
-            } else if (result[row].toString().contains(reverseString(currentWord))) {
-                int indexOfWord = result[row].toString().indexOf(reverseString(currentWord),
+            } else if (String.valueOf(result[row]).contains(reverseString(currentWord))) {
+                int indexOfWord = String.valueOf(result[row]).indexOf(reverseString(currentWord),
                                                        col - currentWord.length());
                 if (indexOfWord == col || indexOfWord == col - currentWord.length() + 1) {
                     valid = false;
@@ -281,157 +281,6 @@ public class Gridmaker {
         return result;
     }
 
-    private boolean expandedSearch(int row, int col, int orientation, String word, char[][] tempGrid) {
-        /**
-         * Helper method for fillInLetter()
-         *
-         * When filling in a random letter at a given position, if the letter is suspected to
-         * form new instances of words from the words-to-be-found, an in depth search is conducted
-         * to ensure that no words, in all 8 directions, clash with any of the words from the words-to-be-found
-         *
-         * Return false if a clash is found
-         * Return true if no clashes are found
-         */
-        boolean valid = true;
-        int r;
-        int c;
-        switch (orientation) {
-            case 1, 2: // Check the entire horizontal row, both directions
-                String testRow = "";
-                for (int co = 0;  co < tempGrid[0].length; co++) {
-                    testRow += Character.toString(tempGrid[row][co]);
-                }
-                if (testRow.contains(word) &&
-                        (testRow.indexOf(word) <= col && (col <= testRow.indexOf(word) + word.length()))) {
-                    // If the added character is within the testRow
-                    valid = false;
-                }
-                testRow = reverseString(testRow);
-                if (testRow.contains(word) &&
-                        (testRow.indexOf(word) <= col && (col <= testRow.indexOf(word) + word.length()))) {
-                    // If the added character is within the reversed testRow
-                    valid = false;
-                }
-                break;
-            case 3, 4: // Check the entire vertical column
-                String testCol = "";
-                for (int ro = 0; ro < tempGrid.length; ro++) {
-                    testCol += Character.toString(tempGrid[ro][col]);
-                }
-                if (testCol.contains(word) &&
-                        (testCol.indexOf(word) <= row && (row <= testCol.indexOf(word) + word.length()))) {
-                    // If the added character is within the testCol
-                    valid = false;
-                }
-                testCol = reverseString(testCol);
-                if (testCol.contains(word) &&
-                        (testCol.indexOf(word) <= row && (row <= testCol.indexOf(word) + word.length()))) {
-                    // If the added character is within the reversed testCol
-                    valid = false;
-                }
-                break;
-            case 5, 7: // Check the diagonal going from the bottom left to the top right
-                String testRightDiag = "";
-                String testRightDiagRight = "";
-                String testRightDiagLeft = "";
-                r = row;
-                c = col;
-                while (r >= 0 && c < tempGrid[0].length) {
-                    testRightDiagRight += Character.toString(tempGrid[r][c]);
-                    c++;
-                    r--;
-                }
-                r = row;
-                c = col;
-                while (r < tempGrid.length && c >= 0) {
-                    testRightDiagLeft += Character.toString(tempGrid[r][c]);
-                    c--;
-                    r++;
-                }
-                if (testRightDiagLeft.length() == 1) {
-                    testRightDiag = testRightDiagRight;
-                } else {
-                    testRightDiagLeft = testRightDiagLeft.substring(1);
-                    testRightDiag = reverseString(testRightDiagLeft) + testRightDiagRight;
-                }
-
-                if (testRightDiag.contains(word) &&
-                        testRightDiag.indexOf(word) >= row && testRightDiag.indexOf(word) + word.length() <= row) {
-                    if (testRightDiag.indexOf(word) <= col && testRightDiag.indexOf(word) + word.length() >= col) {
-                        valid = false;
-                    }
-                }
-                testRightDiag = reverseString(testRightDiagRight);
-                if (testRightDiag.contains(word) &&
-                        testRightDiag.indexOf(word) >= row && testRightDiag.indexOf(word) + word.length() <= row) {
-                    if (testRightDiag.indexOf(word) <= col && testRightDiag.indexOf(word) + word.length() >= col) {
-                        valid = false;
-                    }
-                }
-                break;
-            case 6, 8: // Check the diagonal going from the top left to the bottom right
-                String testLeftDiag = "";
-                String testLeftDiagRight = "";
-                String testLeftDiagLeft = "";
-                r = row;
-                c = col;
-                while (r < tempGrid.length && c < tempGrid[0].length) {
-                    testLeftDiagRight += Character.toString(tempGrid[r][c]);
-                    c++;
-                    r++;
-                }
-                r = row;
-                c = col;
-                while (r >= 0 && c >= 0) {
-                    testLeftDiagLeft += Character.toString(tempGrid[r][c]);
-                    c--;
-                    r--;
-                }
-                if (testLeftDiagLeft.length() == 1) {
-                    testLeftDiag = testLeftDiagRight;
-                } else {
-                    testLeftDiagLeft = testLeftDiagLeft.substring(1);
-                    testLeftDiag = reverseString(testLeftDiagLeft) + testLeftDiagRight;
-                }
-
-                if (testLeftDiag.contains(word) &&
-                        testLeftDiag.indexOf(word) <= row && testLeftDiag.indexOf(word) + word.length() >= row) {
-                    if (testLeftDiag.indexOf(word) <= col && testLeftDiag.indexOf(word) + word.length() >= col) {
-                        valid = false;
-                    }
-                }
-                testLeftDiag = reverseString(testLeftDiagRight);
-                if (testLeftDiag.contains(word) &&
-                        testLeftDiag.indexOf(word) <= row && testLeftDiag.indexOf(word) + word.length() >= row) {
-                    if (testLeftDiag.indexOf(word) <= col && testLeftDiag.indexOf(word) + word.length() >= col) {
-                        valid = false;
-                    }
-                }
-                break;
-        }
-        return valid;
-    }
-
-    public static String getRightDiagonal(char[][] charGrid, int row, int col) {
-        String ret = "";
-        int hsize = charGrid.length;
-        int vsize = charGrid[0].length;
-
-        // Move row and col variables to the bottom left
-        while (row < hsize && col >= 0) {
-            row++;
-            col--;
-        }
-
-        // Ascend up right in the grid until reaching the end
-        while (row >= 0 && col < vsize) {
-            ret += charGrid[row][col];
-            row--;
-            col++;
-        }
-        return ret;
-    }
-
     public static String reverseString(String s) {
         /**
          * Helper method for many other methods such as expandedSearch(), fillInletter() etc.
@@ -468,7 +317,7 @@ public class Gridmaker {
          * Appends the words needed to be found at the end
          */
         String ret = "   ";
-        for (int col_counter = 1; col_counter <= grid[0].length; col_counter++) {
+        for (int col_counter = 0; col_counter < grid[0].length; col_counter++) {
             if (col_counter / 10 > 0) {
                 ret += col_counter + " ";
             } else {
@@ -476,7 +325,7 @@ public class Gridmaker {
             }
         }
         ret += "\n";
-        int row_counter = 1;
+        int row_counter = 0;
         for (int i = 0; i < grid[0].length; i++) {
             if (row_counter / 10 > 0) {
                 ret += row_counter + " ";
