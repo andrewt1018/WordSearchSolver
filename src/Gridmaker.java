@@ -81,13 +81,13 @@ public class Gridmaker {
             placeWordCounter = 0;
             grid = placeWord(word);
         }
-//        for (int r = 0; r < grid.length; r++) {
-//            for (int c = 0; c < grid[0].length; c++) {
-//                if (grid[r][c] == '.') {
-//                    grid = fillInLetter(r, c);
-//                }
-//            }
-//        }
+        for (int r = 0; r < grid.length; r++) {
+            for (int c = 0; c < grid[0].length; c++) {
+                if (grid[r][c] == '.') {
+                    grid = fillInLetter(r, c);
+                }
+            }
+        }
     }
 
     private char[][] placeWord(Word word) {
@@ -343,10 +343,12 @@ public class Gridmaker {
                 ret += word + "  ";
             }
         }
-        ret += "\n";
-        ret += "Unplaced words: ";
-        for (String word : unplacedWords) {
-            ret += word + " ";
+        if (unplacedWords.size() != 0) {
+            ret += "\n";
+            ret += "Unplaced words: ";
+            for (String word : unplacedWords) {
+                ret += word + " ";
+            }
         }
         return ret;
     }

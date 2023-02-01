@@ -61,7 +61,7 @@ public class WordSearcher {
                     notFound.remove(word);
                     found.add(word);
                 } else if (colStr.contains(Gridmaker.reverseString(word))) {
-                    int indexOfWord = colStr.indexOf(Gridmaker.reverseString(word)) + word.length();
+                    int indexOfWord = colStr.indexOf(Gridmaker.reverseString(word)) + word.length() - 1;
                     ret += addFoundStatement(word, indexOfWord, col);
                     notFound.remove(word);
                     found.add(word);
